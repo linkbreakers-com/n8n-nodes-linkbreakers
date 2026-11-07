@@ -1,0 +1,14 @@
+{
+	"node": "n8n-nodes-linkbreakers.linkbreakers",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content", "Analytics"],
+	"resources": {
+		"credentialDocumentation": [
+			{ "url": "https://github.com/linkbreakers-com/n8n-nodes-linkbreakers#credentials" }
+		],
+		"primaryDocumentation": [
+			{ "url": "https://github.com/linkbreakers-com/n8n-nodes-linkbreakers#readme" }
+		]
+	}
+}

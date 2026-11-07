@@ -1,0 +1,56 @@
+{
+  "name": "n8n-nodes-linkbreakers",
+  "version": "0.1.0",
+  "description": "Linkbreakers for n8n: start workflows when someone scans a QR code or clicks a link, create trackable links and identify visitors.",
+  "license": "MIT",
+  "homepage": "https://linkbreakers.com",
+  "keywords": [
+    "n8n-community-node-package",
+    "linkbreakers",
+    "qr-code",
+    "short-links",
+    "link-tracking"
+  ],
+  "author": {
+    "name": "Linkbreakers",
+    "email": "laurent@linkbreakers.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linkbreakers-com/n8n-nodes-linkbreakers.git"
+  },
+  "scripts": {
+    "build": "n8n-node build",
+    "build:watch": "tsc --watch",
+    "dev": "n8n-node dev",
+    "lint": "n8n-node lint",
+    "lint:fix": "n8n-node lint --fix",
+    "release": "n8n-node release",
+    "prepublishOnly": "n8n-node prerelease"
+  },
+  "files": [
+    "dist",
+    "LICENSE.md"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "strict": true,
+    "credentials": [
+      "dist/credentials/LinkbreakersApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Linkbreakers/Linkbreakers.node.js",
+      "dist/nodes/LinkbreakersTrigger/LinkbreakersTrigger.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@n8n/node-cli": "*",
+    "eslint": "9.32.0",
+    "prettier": "3.6.2",
+    "release-it": "^21.1.0",
+    "typescript": "5.9.2"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}
