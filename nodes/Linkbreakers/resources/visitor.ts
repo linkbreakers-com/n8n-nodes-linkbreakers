@@ -1,5 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
 
+const RESERVED = ['email', 'phone', 'firstName', 'lastName'];
+const ATTRIBUTE_NAMES: Record<string, string> = { company: 'Company', title: 'Title' };
+
 const forIdentify = { show: { resource: ['visitor'], operation: ['identify'] } };
 
 export const visitorDescription: INodeProperties[] = [
@@ -25,8 +28,11 @@ export const visitorDescription: INodeProperties[] = [
 									attribute?: Array<{ key: string; value: string }>;
 								};
 								const data: Record<string, string> = {};
+								// email, phone, firstName and lastName are the visitor's reserved
+								// fields ($-prefixed); the others are attributes like any other.
 								for (const [key, value] of Object.entries(fields)) {
-									if (value !== '') data[`$${key}`] = value;
+									if (value === '') continue;
+									data[RESERVED.includes(key) ? `$${key}` : (ATTRIBUTE_NAMES[key] ?? key)] = value;
 								}
 								for (const { key, value } of custom.attribute ?? []) {
 									if (key) data[key] = value;
