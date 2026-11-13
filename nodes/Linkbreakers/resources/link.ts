@@ -40,7 +40,21 @@ export const linkDescription: INodeProperties[] = [
 				value: 'getAll',
 				action: 'Get many links',
 				routing: {
-					request: { method: 'GET', url: '/v1/links' },
+					send: { paginate: '={{ $parameter.returnAll }}' },
+					request: {
+						method: 'GET',
+						url: '/v1/links',
+						qs: { pageSize: '={{ $parameter.returnAll ? 100 : $parameter.limit }}' },
+					},
+					operations: {
+						pagination: {
+							type: 'generic',
+							properties: {
+								continue: '={{ !!$response.body?.nextPageToken }}',
+								request: { qs: { pageToken: '={{ $response.body.nextPageToken }}' } },
+							},
+						},
+					},
 					output: { postReceive: [{ type: 'rootProperty', properties: { property: 'links' } }] },
 				},
 			},
@@ -116,13 +130,20 @@ export const linkDescription: INodeProperties[] = [
 		displayOptions: forLink(['get', 'delete']),
 	},
 	{
+		displayName: 'Return All',
+		name: 'returnAll',
+		type: 'boolean',
+		default: false,
+		description: 'Whether to return all results or only up to a given limit',
+		displayOptions: forLink(['getAll']),
+	},
+	{
 		displayName: 'Limit',
 		name: 'limit',
 		type: 'number',
 		typeOptions: { minValue: 1, maxValue: 1000 },
 		default: 50,
 		description: 'Max number of results to return',
-		displayOptions: forLink(['getAll']),
-		routing: { send: { type: 'query', property: 'pageSize' } },
+		displayOptions: { show: { resource: ['link'], operation: ['getAll'], returnAll: [false] } },
 	},
 ];

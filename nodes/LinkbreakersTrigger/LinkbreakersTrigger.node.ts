@@ -1,4 +1,5 @@
 import {
+	NodeApiError,
 	NodeConnectionTypes,
 	type IHookFunctions,
 	type IWebhookFunctions,
@@ -6,7 +7,20 @@ import {
 	type INodeTypeDescription,
 	type IWebhookResponseData,
 	type IDataObject,
+	type JsonObject,
 } from 'n8n-workflow';
+
+// The HTTP status of a failed request, whether n8n wrapped it in a NodeApiError
+// (httpCode) or passed the raw HTTP error through (status on the response).
+function httpStatus(error: unknown): number | undefined {
+	const e = error as {
+		httpCode?: string | null;
+		response?: { status?: number };
+		cause?: { response?: { status?: number } };
+	};
+	if (e.httpCode) return Number(e.httpCode);
+	return e.response?.status ?? e.cause?.response?.status;
+}
 
 async function webhooksUrl(this: IHookFunctions): Promise<string> {
 	const credentials = await this.getCredentials('linkbreakersApi');
@@ -39,19 +53,12 @@ export class LinkbreakersTrigger implements INodeType {
 		],
 		properties: [
 			{
-				displayName:
-					'Which links, which moments of a visit and how much visitor data are sent is set on the n8n page of your Linkbreakers integrations.',
-				name: 'notice',
-				type: 'notice',
-				default: '',
-			},
-			{
 				displayName: 'Link ID',
 				name: 'linkId',
 				type: 'string',
 				default: '',
 				description:
-					'Only the visits of this link. Leave empty to follow the n8n integration settings in Linkbreakers.',
+					'Only the visits of this link. Leave empty to receive the links chosen on the n8n page of your Linkbreakers integrations, where the moments of a visit and how much visitor data are sent are also set.',
 			},
 		],
 	};
@@ -68,9 +75,21 @@ export class LinkbreakersTrigger implements INodeType {
 						json: true,
 					});
 					return true;
-				} catch {
-					delete data.webhookId;
-					return false;
+				} catch (error) {
+					// Only a 404 means the webhook is gone (deleted in Linkbreakers, or
+					// its workspace removed): n8n can then safely create a new one, as
+					// nothing is left on the Linkbreakers side to send a second delivery.
+					// Any other failure (bad token, server error, timeout) says nothing
+					// about whether the webhook exists, so creating one could duplicate
+					// it: fail the activation instead and keep the stored ID.
+					const status = httpStatus(error);
+					if (status === 404) {
+						delete data.webhookId;
+						return false;
+					}
+					throw new NodeApiError(this.getNode(), error as JsonObject, {
+						httpCode: status ? String(status) : undefined,
+					});
 				}
 			},
 
