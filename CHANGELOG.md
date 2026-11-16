@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Visitor → Identify calls `POST /v1/visitors:identify`, the API's current path; the former `/v1/visitor/identify` is being removed.
+
 ## 0.1.2
 
 - Linkbreakers Trigger: on activation, only a 404 counts as "webhook gone". Any other error (authentication, server, network) now fails the activation, so a second webhook is never created next to the first.
