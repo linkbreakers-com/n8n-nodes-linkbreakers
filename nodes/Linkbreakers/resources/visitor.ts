@@ -19,7 +19,7 @@ export const visitorDescription: INodeProperties[] = [
 				action: 'Identify a visitor',
 				description: 'Add an email, a name or any attribute to the visitor of a scan or click',
 				routing: {
-					request: { method: 'POST', url: '/v1/visitor/identify' },
+					request: { method: 'POST', url: '/v1/visitors:identify' },
 					send: {
 						preSend: [
 							async function (this, requestOptions) {
